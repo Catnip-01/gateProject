@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "http-browserify": "^1.7.0",
+    "mongoose": "^8.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "stream-browserify": "^3.0.0",
+    "timers-browserify": "^2.0.12"
+  }
+}
