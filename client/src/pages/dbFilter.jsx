@@ -1,24 +1,19 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function DbFilter({ type }) {
   const [value, setValue] = useState("");
-  const [questions, setQuestions] = useState([]);
+  const navigate = useNavigate();
 
-  const fetchQuestions = async (parameter) => {
+  const fetchQuestions = async (e) => {
+    e.preventDefault();
     try {
-      const response = await fetch(
-        `http://localhost:5000/questions?${type}=${parameter}`
-      );
-      const data = await response.json();
-      setQuestions(data);
+      console.log(`Selected ${type}: ${value}`);
+      // Navigate to the questions page and pass the filter type and value
+      navigate("../questions", { state: { [type]: value } });
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    fetchQuestions(value);
   };
 
   return (
@@ -32,7 +27,7 @@ function DbFilter({ type }) {
       }}
     >
       <form
-        onSubmit={handleSubmit}
+        onSubmit={fetchQuestions}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -72,19 +67,6 @@ function DbFilter({ type }) {
           Get Questions
         </button>
       </form>
-      <ul
-        style={{
-          marginTop: "30px",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {questions.map((question) => (
-          <li key={question._id}>
-            {"Qn" + question.id + ". " + question.question}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

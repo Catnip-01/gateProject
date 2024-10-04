@@ -1,57 +1,55 @@
 import React, { useState, useEffect } from "react";
-import { json, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
-// import question from "../../../server/models/question";
 
 const QuestionAnswerPage = () => {
   const location = useLocation();
-  const year = location.state.year;
-  const correctAnswers = [];
+  const { year, subject } = location.state || {}; // Get the year and subject from state
+
   const [questions, setQuestions] = useState([]);
   const [correctOptions, setCorrectOptions] = useState([]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/questions?year=" + year
-        );
-        // Sort questions and set them
-        const sortedQuestions = response.data
-          .map((q) => ({ ...q, flag: 0 }))
-          .sort((a, b) => a.id - b.id);
+        // Create query parameters based on filters
+        let query = "";
+        if (year) query += `year=${year}`;
+        if (subject) {
+          const capitalizedSubject =
+            subject.charAt(0).toUpperCase() + subject.slice(1).toLowerCase();
 
-        setQuestions(sortedQuestions);
-        console.log("Sorted questions: " + JSON.stringify(sortedQuestions));
+          query += `${query ? "&" : ""}subject=${capitalizedSubject}`;
+        }
 
-        // Map correct options from sorted questions
-        const optionsArray = sortedQuestions.map((q) => q.correctOption);
-        setCorrectOptions(optionsArray);
+        if (query) {
+          console.log("Query is:", query);
+          const response = await axios.get(
+            `http://localhost:5000/questions?${query}` // Query using year/subject filters
+          );
+          const sortedQuestions = response.data
+            .map((q) => ({ ...q, flag: 0 }))
+            .sort((a, b) => a.id - b.id);
 
-        console.log("Correct options: " + JSON.stringify(optionsArray));
+          setQuestions(sortedQuestions);
+          const optionsArray = sortedQuestions.map((q) => q.correctOption);
+          setCorrectOptions(optionsArray);
+        } else {
+          console.error("Filters are undefined");
+        }
       } catch (err) {
         console.log("Error fetching questions:", err);
       }
     };
 
     fetchQuestions();
-  }, [year]);
-
-  console.log(
-    "correct options : " + JSON.stringify(questions) + typeof correctOptions
-  );
-
-  console.log("here are your questions ! : " + JSON.stringify(questions));
+  }, [year, subject]); // Fetch based on year or subject
 
   const checkAnswer = (option, questionId) => {
     setQuestions((prevQuestions) =>
       prevQuestions.map((question) =>
         question.id === questionId
-          ? {
-              ...question,
-              selectedOption: option,
-              flag: 1,
-            }
+          ? { ...question, selectedOption: option, flag: 1 }
           : question
       )
     );
@@ -61,10 +59,7 @@ const QuestionAnswerPage = () => {
     setQuestions((prevQuestions) =>
       prevQuestions.map((question) =>
         question.id === questionId
-          ? {
-              ...question,
-              solutionVisible: !question.solutionVisible,
-            }
+          ? { ...question, solutionVisible: !question.solutionVisible }
           : question
       )
     );
@@ -80,8 +75,8 @@ const QuestionAnswerPage = () => {
         alignItems: "center",
         height: "100vh",
         margin: "0",
-        textAlign: "left", // Center text within each question
-        width: "100%", // Ensures full width of container
+        textAlign: "left",
+        width: "100%",
       }}
     >
       {questions.map((question, index) => (
@@ -89,13 +84,13 @@ const QuestionAnswerPage = () => {
           key={question.id}
           className={`question-${question.id}`}
           style={{
-            width: "50%", // Limit the width of each question block
-            textAlign: "center", // Center text within the block
-            margin: "10px auto", // Center the question block within the parent
+            width: "50%",
+            textAlign: "center",
+            margin: "10px auto",
           }}
         >
           <h3>
-            Question {question.id} : {question.question}
+            Question {index + 1}: {question.question}
           </h3>
           <div className="options">
             {["A", "B", "C", "D"].map((option) => (
@@ -105,7 +100,7 @@ const QuestionAnswerPage = () => {
                 className="option-button"
                 onClick={() => {
                   if (question.flag === 0) {
-                    checkAnswer(option, question.id); // Use question.id here
+                    checkAnswer(option, question.id);
                   } else {
                     alert("You can select only one option");
                   }
@@ -127,7 +122,7 @@ const QuestionAnswerPage = () => {
             className="answerToggle"
             onClick={() => {
               if (question.flag === 1) {
-                displaySolution(question.id); // Use question.id here
+                displaySolution(question.id);
               } else {
                 alert("You have to answer the question first");
               }
@@ -145,6 +140,5 @@ const QuestionAnswerPage = () => {
     </div>
   );
 };
-// };
 
 export default QuestionAnswerPage;

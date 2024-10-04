@@ -39,14 +39,26 @@ app.get("/test", async (req, res) => {
 
 app.get("/questions", async (req, res) => {
   try {
-    const year = req.query.year; // Change this line to use req.query
-    console.log("year  : " + year);
-    const questions = await gateQuestion.find({ year: year }); // Fetch questions from the database
-    console.log(JSON.stringify(questions));
-    res.json(questions); // Send questions as JSON response
+    const { year, subject } = req.query;
+    console.log(
+      "year : " + year,
+      "subject : " + subject,
+      "query : " + JSON.stringify(req.query)
+    );
+
+    let filteredQuestions;
+
+    if (year) {
+      filteredQuestions = await gateQuestion.find({ year: year });
+      res.json(filteredQuestions);
+    } else if (subject) {
+      filteredQuestions = await gateQuestion.find({ subject: subject });
+      res.json(filteredQuestions);
+    } else {
+      console.log("this is your req body : " + req.body);
+    }
   } catch (err) {
-    console.log("there is an error in the get request !");
-    res.status(500).send(err); // Handle errors
+    console.log("error while retrieving questions : " + err);
   }
 });
 
