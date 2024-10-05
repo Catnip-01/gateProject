@@ -4,9 +4,10 @@ import "./App.css";
 import AboutUs from "./pages/aboutUs";
 import Resources from "./pages/resources";
 import PYQs from "./pages/pyqs";
-import Navbar from "./pages/navbar";
+import Navbar from "./components/navbar";
 import QuestionAnswerPage from "./pages/questions";
-import QuestionForm from "./pages/questionForm";
+import TestPage from "./pages/testPage";
+import QuestionForm from "./components/questionForm";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/navbar" element={<Navbar />} />
         <Route path="/questions" element={<QuestionAnswerPage />} />
         <Route path="/questionForm" element={<QuestionForm />} />
+        <Route path="/testpage" element={<TestPage />} />
       </Routes>
     </Router>
   );
