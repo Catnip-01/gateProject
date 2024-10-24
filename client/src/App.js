@@ -8,6 +8,7 @@ import Navbar from "./components/navbar";
 import QuestionAnswerPage from "./pages/questions";
 import TestPage from "./pages/testPage";
 import QuestionForm from "./components/questionForm";
+import Layout from "./components/layout";
 
 function App() {
   return (
