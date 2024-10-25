@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: "https://gate-project-dk5t.vercel.app" }));
 app.use(express.json());
 
 // MongoDB connection
@@ -38,6 +38,7 @@ app.get("/test", async (req, res) => {
 });
 
 app.get("/questions", async (req, res) => {
+  console.log("request has reached us !");
   try {
     const { year, subject } = req.query;
     console.log(

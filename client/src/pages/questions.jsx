@@ -25,6 +25,8 @@ const QuestionAnswerPage = () => {
           const response = await axios.get(
             `https://gateproject.onrender.com/questions?${query}` // Query using year/subject filters
           );
+
+          console.log("made query.");
           const sortedQuestions = response.data
             .map((q) => ({ ...q, flag: 0, flagAnswered: 0 }))
             .sort((a, b) => a.id - b.id);
