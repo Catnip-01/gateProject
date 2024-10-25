@@ -23,7 +23,7 @@ const QuestionAnswerPage = () => {
 
         if (query) {
           const response = await axios.get(
-            `http://localhost:5000/questions?${query}` // Query using year/subject filters
+            `https://gateproject.onrender.com/questions?${query}` // Query using year/subject filters
           );
           // console;
           const sortedQuestions = response.data
