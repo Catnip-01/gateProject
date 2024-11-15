@@ -103,3 +103,99 @@ public class Stu {
         }
     }
 }
+
+import java.sql.*;
+
+public class CustomerDatabase {
+    static final String JDBC_URL = "jdbc:mysql://localhost:3306/bank";
+    static final String USER = "root";
+    static final String PASSWORD = "";
+
+    public static void main(String[] args) {
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, USER, PASSWORD)) {
+            createTable(conn);
+            insertSampleData(conn);
+            displayAllCustomers(conn);
+            displayDatabaseMetadata(conn);
+            displayResultSetMetadata(conn);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createTable(Connection conn) {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS Customer ("
+                + "ID INT PRIMARY KEY AUTO_INCREMENT, Name VARCHAR(255), "
+                + "Type_of_Customer VARCHAR(255), Amount_Spent DECIMAL(10, 2))";
+        executeUpdate(conn, createTableSQL, "Customer table created or exists.");
+    }
+
+    public static void insertSampleData(Connection conn) {
+        String insertSQL = "INSERT INTO Customer (Name, Type_of_Customer, Amount_Spent) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(insertSQL)) {
+            insertCustomer(pstmt, "John Doe", "Regular", 150.75);
+            insertCustomer(pstmt, "Jane Smith", "Premium", 320.50);
+            insertCustomer(pstmt, "Bill Gates", "VIP", 5000.00);
+            System.out.println("Sample records inserted.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void insertCustomer(PreparedStatement pstmt, String name, String type, double amount) throws SQLException {
+        pstmt.setString(1, name);
+        pstmt.setString(2, type);
+        pstmt.setBigDecimal(3, BigDecimal.valueOf(amount));
+        pstmt.executeUpdate();
+    }
+
+    public static void displayAllCustomers(Connection conn) {
+        String selectSQL = "SELECT * FROM Customer";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(selectSQL)) {
+            System.out.println("\nCustomer Table:");
+            while (rs.next()) {
+                System.out.printf("ID: %d, Name: %s, Type: %s, Amount: %.2f\n",
+                        rs.getInt("ID"), rs.getString("Name"),
+                        rs.getString("Type_of_Customer"), rs.getBigDecimal("Amount_Spent"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void displayDatabaseMetadata(Connection conn) {
+        try {
+            DatabaseMetaData metaData = conn.getMetaData();
+            System.out.printf("\nDB Metadata:\nProduct: %s\nVersion: %s\nDriver: %s\n",
+                    metaData.getDatabaseProductName(), metaData.getDatabaseProductVersion(),
+                    metaData.getDriverName());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void displayResultSetMetadata(Connection conn) {
+        String selectSQL = "SELECT * FROM Customer";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(selectSQL)) {
+            ResultSetMetaData rsMetaData = rs.getMetaData();
+            System.out.println("\nResultSet Metadata:");
+            for (int i = 1; i <= rsMetaData.getColumnCount(); i++) {
+                System.out.printf("Column %d: %s (%s)\n",
+                        i, rsMetaData.getColumnName(i), rsMetaData.getColumnTypeName(i));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void executeUpdate(Connection conn, String sql, String successMessage) {
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+            System.out.println(successMessage);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
